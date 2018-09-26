@@ -1,23 +1,27 @@
-var express = require('express');
-var app = express();
+﻿require('rootpath')();
+const express = require('express');
+const app = express();
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const jwt = require('_helpers/jwt');
+const errorHandler = require('_helpers/error-handler');
 
-// set the port of our application
-// process.env.PORT lets the port be set by Heroku
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(cors());
+
+// use JWT auth to secure the api
+app.use(jwt());
+
+// api routes
+app.use('/users', require('./users/users.controller'));
+
+// global error handler
+app.use(errorHandler);
+
+// start server
 var port = process.env.PORT || 8080;
-
-// set the view engine to ejs
-app.set('view engine', 'ejs');
-
-// make express look in the public directory for assets (css/js/img)
-app.use(express.static(__dirname + '/public'));
-
-// set the home page route
-app.get('/', function(req, res) {
-
-	// ejs render automatically looks in the views folder
-	res.render('index');
-});
-
-app.listen(port, function() {
-	console.log('Our app is running on http://localhost:' + port);
+// const port = process.env.NODE_ENV === 'production' ? 80 : 4000;
+const server = app.listen(port, function () {
+    console.log('Server listening on port ' + port);
 });
